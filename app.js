@@ -107,9 +107,10 @@ app.use("/", userRouter);
 
 
 
-// app.get("/", (req, res) => {
-//   res.send("hi i am Root");
-// });
+app.get('/', (req, res) => {
+    res.redirect('/listings');
+});
+
 
 //  error handling 
 app.all(/.*/, (req, res, next) => {
