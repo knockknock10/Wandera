@@ -1,0 +1,128 @@
+<% layout("/layouts/boilerplate") %>
+<body class="edit">
+    <h3>Edit Your Listing</h3>
+    <form method="post" 
+        action="/listings/<%= listing._id %>?_method=PUT" 
+        novalidate class="needs-validation"
+        enctype="multipart/form-data"
+        >
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input name="listing[title]" 
+            value="<%= listing.title %>" 
+            type="text" class="form-control" required>
+            <div class="valid-feedback">Title looks good</div>
+        </div>
+        
+        
+        <div class="mb-3" >
+            <label for="description" class="form-label">Description</label>
+            <textarea name="listing[description]" class="form-control" required>
+                <%= listing.description %>
+            </textarea>
+            <div class="invalid-feedback">Description is required</div>
+        </div>
+        
+        <div class="mb-3">
+    <p>Original Image</p>
+    <a href="<%= listing.image.url %>" target="_blank">
+        <img src="<%= originalImageUrl %>"
+             class="img-fluid rounded"
+             style="max-width:250px; cursor:pointer;">
+    </a>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Update Image</label>
+
+    <!-- Keep old image if no new upload -->
+    <input type="hidden"
+           name="listing[image][url]"
+           value="<%= listing.image.url %>">
+
+    <input type="hidden"
+           name="listing[image][filename]"
+           value="<%= listing.image.filename %>">
+
+    <!-- File input -->
+    <input class="form-control"
+           type="file"
+           name="image"
+           id="imageInput"
+           accept="image/*">
+
+    <!-- Preview -->
+    <div class="mt-3">
+        <p id="previewText" style="display:none;">New Image Preview</p>
+        <a id="previewLink" target="_blank">
+            <img id="imagePreview"
+                 class="img-fluid rounded"
+                 style="max-width:250px; display:none; cursor:pointer;">
+        </a>
+    </div>
+</div>
+
+        <div class="row">
+
+            <div class="mb-3 col-4">
+                <label for="price" class="form-label">Price</label>
+                <input name="listing[price]" value="<%= listing.price %>" type="number" class="form-control" required>
+            <div class="invalid-feedback">Price should be valid</div>
+
+            </div>
+            
+            <div class="mb-3 col-8">
+                <label for="country" class="form-label">Country</label>
+                <input name="listing[country]" value="<%= listing.country %>" type="text" class="form-control" required/>
+                <div class="invalid-feedback">Please enter valid country</div>
+            </div>
+
+        </div>
+        
+    
+        <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input name="listing[location]" 
+            value="<%= listing.location %>" 
+            type="text" class="form-control" required>
+            <div class="invalid-feedback">Please enter valid location</div>
+
+        </div>
+
+        <br><br>
+    
+        <button class="btn btn-dark add-btn mt-1">Edit</button>
+        <br>
+    </form>
+    <!-- for image preview -->
+        <script>
+        const imageInput = document.getElementById("imageInput");
+        const imagePreview = document.getElementById("imagePreview");
+        const previewText = document.getElementById("previewText");
+        const previewLink = document.getElementById("previewLink");
+
+        imageInput.addEventListener("change", function () {
+            const file = this.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+            imagePreview.src = e.target.result;
+            previewLink.href = e.target.result;
+            imagePreview.style.display = "block";
+            previewText.style.display = "block";
+            };
+            reader.readAsDataURL(file);
+        });
+        </script>
+
+</body>
+
+
+<!-- 
+before i worte
+<br><br>
+        <input name="listing[country]" value="<%= listing.country %>" type="text">
+        <br><br>
+        <br><br>
+     -->

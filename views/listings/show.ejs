@@ -1,0 +1,174 @@
+<% layout("/layouts/boilerplate") %>
+<script>
+    const mapapi="<%= googlemapkey %>";
+</script>
+    <!-- <body class="show"> -->
+        <div class="page-container d-flex flex-column min-vh-100">
+
+            <!-- Main Content -->
+            <div class="content flex-grow-1 container mt-3">
+
+                <% if (listing) { %>
+
+                    <h3 class="mb-4 text-center">
+                        <%= listing.title %>
+                    </h3>
+
+                    <!-- Listing Card -->
+                    <div class="card mb-3 mx-auto listing-card" style="max-width: 610px;">
+                        <img src="<%= listing.image.url ? listing.image.url : '/image.png' %>"
+                            class="card-img-top show-img" alt="<%= listing.title %>">
+
+                        <div class="card-body">
+                            <p class="card-text">Owned by <i>
+                                    <%= listing.owner.username %>
+                                </i></p>
+                            <p class="card-text mb-2">
+                                <%= listing.description %>
+                            </p>
+
+                            <div class="listing-info">
+                                <p class="card-text">Price: ₹<%= listing.price.toLocaleString("en-IN") %>
+                                </p>
+                                <p class="card-text">Location: <%= listing.location %>
+                                </p>
+                                <p class="card-text">Country: <%= listing.country %>
+                                </p>
+                            </div>
+
+                            <% if(currUser && listing.owner._id.equals(currUser._id)) {%>
+                                <div class="btns d-flex gap-2 mt-3">
+                                    <a href="/listings/<%= listing._id %>/edit" class="btn btn-edit">Edit</a>
+
+                                    <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
+                                        <button type="submit" class="btn btn-dark delete-btn">Delete</button>
+                                    </form>
+                                </div>
+                                <% } %>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Review Section  -->
+
+                    <div class="row justify-content-center">
+                        <div class="col-md-8 mb-4">
+                            <% if(currUser){ %>
+                               
+                                <h4>Leave a Review</h4>
+                                <form action="/listings/<%= listing._id %>/reviews" method="POST" novalidate
+                                    class="needs-validation">
+                                    <div class="mb-3 mt-3">
+                                        <label for="rating" class="form-label mb-1">Rating</label>
+                                        <div class="invalid-feedback">Please select a rating</div>
+                                        <fieldset class="starability-fade">
+
+                                            <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]"
+                                                value="1" checked aria-label="No rating." />
+                                            <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+                                            <label for="first-rate1" title="Terrible">1 star</label>
+                                            <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                                            <label for="first-rate2" title="Not good">2 stars</label>
+                                            <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                                            <label for="first-rate3" title="Average">3 stars</label>
+                                            <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                                            <label for="first-rate4" title="Very good">4 stars</label>
+                                            <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+                                            <label for="first-rate5" title="Amazing">5 stars</label>
+                                        </fieldset>
+
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="comment" class="form-label">Comment</label>
+                                        <textarea name="review[comment]" id="comment" rows="4" class="form-control"
+                                            required></textarea>
+                                        <div class="invalid-feedback">Please add comment for review</div>
+                                    </div>
+
+                                    <button class="btn btn-outline-dark">Submit</button>
+                                </form>
+                                <hr>
+                            <% } %>
+
+
+                            <% if(listing.reviews.length>0){ %>
+                                <div class="row">
+                                    <p><b>All Reviews</b></p>
+                                        <% for (let review of listing.reviews) { %>
+                                            <div class="card col-md-5 ms-3 mb-3">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">
+                                                        <b>@<%= review.author ? review.author.username : "Deleted user"
+                                                                %></b>
+                                                    </h6>
+                                                    <p class="starability-result" data-rating=<%=review.rating %> ></p>
+                                                    <p class="card-text">
+                                                        <%= review.comment %>
+                                                    </p>
+
+
+                                                </div>
+                                                <form class="mb-3" method="POST"
+                                                    action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE">
+                                                    <button class="btn btn-sm btn-dark">Delete</button>
+                                                </form>
+                                            </div>
+                                            <% } %>
+                                    </div>
+                            <% } %>       
+                        </div>
+                    </div>
+
+                <% } else { %>
+
+                    <div class="alert alert-danger text-center">
+                        Listing not found
+                    </div>
+
+                <% } %>
+        <div class="col-8 offset-2 mb-3" >
+            <h3>Where You'll be</h3>
+            <div id="map" style="height: 400px; width: 100%;" >
+                
+            </div>
+        </div>       
+    </div>
+    
+</div>
+<!-- 
+<script>
+    
+    let map;
+let center =  { lat: -34.397, lng: 150.644 };
+
+async function initMap() {
+  await google.maps.importLibrary("maps");
+  await google.maps.importLibrary("marker");
+
+  map = new google.maps.Map(document.getElementById("map"), {
+    center,
+    zoom: 8,
+    mapId: "DEMO_MAP_ID",
+  });
+
+  addMarker();
+}
+
+async function addMarker() {
+  const marker = new google.maps.marker.AdvancedMarkerElement({
+    map,
+    position: center,
+  });
+}
+
+initMap();
+</script>
+<script>
+google.maps.importLibrary("maps");
+google.maps.importLibrary("marker");
+</script>
+<script async
+    src="https://maps.googleapis.com/maps/api/js?key=<%= googlemapkey %>&loading=async&callback=initMap">
+</script> -->
