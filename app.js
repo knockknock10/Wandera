@@ -87,7 +87,7 @@ passport.deserializeUser(User.deserializeUser());
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
-  res.locals.currUser = req.user;   // for styling bcz navbar doesnt hve direct acces req.user
+  res.locals.currUser = req.user || null;   // for styling bcz navbar doesnt hve direct acces req.user
   next();
 });
 
@@ -126,6 +126,7 @@ app.use((err, req, res, next) => {
 });
 
 //  server 
-app.listen(8080, () => {
-  console.log("Server is listening to Port 8080");
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log("Server is listening to Port", PORT);
 });
