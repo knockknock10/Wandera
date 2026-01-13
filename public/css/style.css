@@ -54,7 +54,11 @@ footer {
     /* LinkedIn blue or any accent color */
     cursor: pointer;
 }
-
+.abs {
+    color:black !important;
+    /* LinkedIn blue or any accent color */
+    cursor: pointer;
+}
 .f-info-brand {
     width: 100%;
     display: flex;
