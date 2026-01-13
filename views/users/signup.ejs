@@ -1,25 +1,100 @@
 <% layout("/layouts/boilerplate") %>
 
-    <div class="row">
-        <h1 class="col-6 offset-2">SignUp on Wanderlust</h1>
-        <div class="col-8 offset-2">
-            <form action="/signup" method="post" class="needs-validation" novalidate>
-                <div class="mb-3">
-                    <label for="username" class="form-label">username</label>
-                    <input name="username" id="username" type="text" class="form-control" required>
-                    <div class="invalid-feedback">Looks Good!</div>
+<style>
+    body {
+        background: linear-gradient(135deg, #eef7f1, #f8f9fa);
+    }
+
+    .signup-wrapper {
+        min-height: 85vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .signup-card {
+        width: 100%;
+        max-width: 450px;
+        padding: 35px;
+        border-radius: 12px;
+        background: #ffffff;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+
+    .signup-title {
+        text-align: center;
+        margin-bottom: 25px;
+        font-weight: 600;
+    }
+
+    .btn-signup {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+    }
+    .brand {
+    background: linear-gradient(90deg, #198754, #20c997);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+}
+    
+</style>
+
+<div class="signup-wrapper">
+    <div class="signup-card">
+
+        <h3 class="signup-title">Sign Up on<br/><span class="brand"> Wandera</span></h3>
+
+        <form action="/signup" method="post" class="needs-validation" novalidate>
+
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input 
+                    name="username" 
+                    id="username" 
+                    type="text" 
+                    class="form-control" 
+                    placeholder="Choose a username"
+                    required
+                >
+                <div class="invalid-feedback">
+                    Please enter a username
                 </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label">E-mail</label>
-                    <input name="email" id="email" type="email" class="form-control" required>
-                    <div class="invalid-feedback">Looks Good!</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input 
+                    name="email" 
+                    id="email" 
+                    type="email" 
+                    class="form-control" 
+                    placeholder="Enter your email"
+                    required
+                >
+                <div class="invalid-feedback">
+                    Please enter a valid email
                 </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <input name="password" id="password" type="password" class="form-control" required>
-                    <div class="invalid-feedback">Looks Good!</div>
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="form-label">Password</label>
+                <input 
+                    name="password" 
+                    id="password" 
+                    type="password" 
+                    class="form-control" 
+                    placeholder="Create a password"
+                    required
+                >
+                <div class="invalid-feedback">
+                    Please enter a password
                 </div>
-                <button class="btn btn-success">SignUp</button>
-            </form>
-        </div>
+            </div>
+
+            <button class="btn btn-success btn-signup">Sign Up</button>
+        </form>
+
     </div>
+</div>
