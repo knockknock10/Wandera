@@ -10,7 +10,7 @@ const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const wrapAsync = require("./utils/wrapAsync.js");
-// const { wrap } = require("module"); // not required
+// const { wrap } = require("module");
 const ExpressError = require("./utils/ExpressError.js");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
@@ -22,6 +22,7 @@ const User = require("./models/user.js");
 const listingRouter = require("./routes/listing.js");
 const reviewsRouter = require("./routes/reviews.js");
 const userRouter = require("./routes/user.js");
+const staticRoutes = require("./routes/static");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
@@ -34,8 +35,7 @@ app.use(express.static(path.join(__dirname, "/public")));
 
 //  Database 
 //const Mongo_url = "mongodb://127.0.0.1:27017/wanderlust";
-const dburl = process.env.ATLASTDB_URL || "mongodb://127.0.0.1:27017/wanderlust";
-
+const dburl = process.env.ATLASTDB_URL
 main()
   .then(() => {
     console.log("Connected to DB");
@@ -51,9 +51,9 @@ async function main() {
 
 const store = MongoStore.create({
   mongoUrl: dburl,
-  crypto: {
-    secret: process.env.SECRET,
-  },
+  // crypto: {
+  //   secret: process.env.SECRET,
+  // },
   touchAfter: 24 * 3600,
 });
 
@@ -101,9 +101,10 @@ app.use((req, res, next) => {
 // })
 
 //  Routes 
-app.use("/listings", listingRouter);
-app.use("/listings/:id/reviews", reviewsRouter);
+app.use("/", staticRoutes);
 app.use("/", userRouter);
+app.use("/listings/:id/reviews", reviewsRouter);
+app.use("/listings", listingRouter);
 
 
 
@@ -123,6 +124,7 @@ app.use((err, req, res, next) => {
   }
   let { statusCode = 500, message = "Something Went Wrong" } = err;
   res.status(statusCode).render("error.ejs", { message, err });
+  next();
 });
 
 //  server 
