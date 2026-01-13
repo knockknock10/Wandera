@@ -51,9 +51,9 @@ async function main() {
 
 const store = MongoStore.create({
   mongoUrl: dburl,
-  // crypto: {
-  //   secret: process.env.SECRET,
-  // },
+  crypto: {
+    secret: process.env.SECRET,
+  },
   touchAfter: 24 * 3600,
 });
 
@@ -87,7 +87,7 @@ passport.deserializeUser(User.deserializeUser());
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
-  res.locals.currUser = req.user || null;   // for styling bcz navbar doesnt hve direct acces req.user
+  res.locals.currUser = req.user || null;  // for styling bcz navbar doesnt hve direct acces req.user
   next();
 });
 
