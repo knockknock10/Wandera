@@ -100,6 +100,9 @@ app.use((req, res, next) => {
 //   res.send(registeredUser);
 // })
 
+app.get("/", (req, res) => {
+  res.redirect("/listings");
+});
 //  Routes 
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewsRouter);
@@ -107,9 +110,6 @@ app.use("/", staticRoutes);
 app.use("/", userRouter);
 
 
-app.get("/", (req, res) => {
-  res.redirect("/listings");
-});
 
 //  error handling 
 app.all(/.*/, (req, res, next) => {
