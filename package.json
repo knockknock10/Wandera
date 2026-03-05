@@ -1,7 +1,7 @@
 {
   "engines": {
-    "node": "20.19.2"
-  },
+  "node": "20.x"
+},
   "name": "project_air",
   "version": "1.0.0",
   "description": "",
@@ -23,6 +23,7 @@
     "express-session": "^1.18.2",
     "joi": "^18.0.2",
     "method-override": "^3.0.0",
+    "mongodb": "^4.17.2",
     "mongoose": "^8.21.0",
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
