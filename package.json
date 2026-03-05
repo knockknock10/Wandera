@@ -1,6 +1,6 @@
 {
   "engines": {
-    "node":"20.19.2"
+    "node":"20.x"
   },
   "name": "project_air",
   "version": "1.0.0",
