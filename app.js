@@ -107,7 +107,7 @@ app.use("/", staticRoutes);
 app.use("/", userRouter);
 
 
-app.get("/", (req, res) => {
+app.get("/", (req, res) => { 
   res.redirect("/listings");
 });
 
