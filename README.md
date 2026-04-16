@@ -1,4 +1,4 @@
+## Live Application
 
-
-**Check out**
+Visit the deployed Wandera app at:
 https://wandera-bncl.onrender.com/listings
