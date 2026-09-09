@@ -6,9 +6,10 @@ body{
     background-color: #fafafa;
 }
 .container{
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
+    flex-grow: 1;
+    min-height: 0;
 }
 /* Main content grows to fill space */
 .content {

@@ -39,7 +39,9 @@
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav me-auto mb-2 mb-md-0">
                 <a class="nav-link" href="/listings">Explore</a>
-                <a class="nav-link" href="/listings/new">Add a Listing</a>
+                <% if(currUser){ %>
+                    <a class="nav-link" href="/listings/new">Add a Listing</a>
+                <% } %>
             </div>
             <form class="d-flex me-md-3 my-2 my-md-0" role="search" action="/listings" method="GET">
                 <input class="form-control me-2 search-inp" type="search" name="q" placeholder="Search Destination"
