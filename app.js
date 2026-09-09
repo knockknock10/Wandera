@@ -149,6 +149,11 @@ app.get("/", (req, res) => {
   res.redirect("/listings");
 });
 
+//  health check — lightweight, for uptime monitors (no DB, no render, no uploads) 
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
 //  error handling 
 app.use((req, res, next) => {
   next(new ExpressError(404, "Page Not Found"));
