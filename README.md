@@ -168,8 +168,9 @@ The project includes a `render.yaml`, so you can deploy directly:
    - Or, when configuring manually:
      - **Build Command:** `npm install`
      - **Start Command:** `npm start`
-3. Add the environment variables from the table above in the Render dashboard (never in `render.yaml`).
-4. Make sure `NODE_ENV=production` is set so secure cookies behave correctly behind HTTPS.
+3. Add the environment variables from the table above in the Render dashboard (never in `render.yaml`). At minimum: `ATLASTDB_URL`, `SECRET`, `CLOUD_NAME`, `CLOUD_API_KEY`, `CLOUD_API_SECRET_KEY`. `GOOGLE_MAPS_API_KEY` is optional.
+4. Make sure `NODE_ENV=production` is set so secure cookies behave correctly behind HTTPS. Render also injects `PORT` — the app picks it up automatically.
+5. The health check is configured at `/listings` (public, returns 200).
 
 ### Security notes for production
 
@@ -179,14 +180,13 @@ The project includes a `render.yaml`, so you can deploy directly:
 
 ## Known Limitations
 
-- Category filter chips are not implemented (the UI shows a working search bar and tax toggle instead). Adding category support would require a `category` field plus data backfill.
+- Category filter chips are not implemented (a search bar and a GST toggle are used instead). Adding category support would require a `category` field plus data backfill.
 - CSRF tokens are not used; Cross-Site Request Forgery risk is mitigated via `SameSite=Lax` cookies, `httpOnly` session cookies, and POST-only state changes (logout is POST).
-- The seeded sample listings link to Unsplash images (not Cloudinary); only user-uploaded images are removed on delete.
+- The seeded sample listings link to Unsplash images (not Cloudinary); only user-uploaded images are removed on delete (including when replaced on edit).
 
 ## Future Improvements
 
 - Category-based filtering with a `category` field on the Listing model
-- Dedicated upload-on-delete cleanup for edited (replaced) images
 - Explicit CSRF tokens (e.g., `csrf-csrf`) on all state-changing forms
 - Pagination for the listings index
 - Email verification and password reset
