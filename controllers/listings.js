@@ -1,15 +1,20 @@
 const Listing = require("../models/listing");
 const { cloudinary } = require("../cloudconfig.js");
 const googlemapkey = process.env.GOOGLE_MAPS_API_KEY;
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 module.exports.index = async (req, res) => {
     const { q } = req.query;
-    const term = q && q.trim();
-    const filter = term
+    // Cap search length and escape regex metacharacters so user input is
+    // treated as a literal substring (no regex injection / ReDoS).
+    const term = q && q.trim().slice(0, 100);
+    const safeTerm = term ? escapeRegExp(term) : null;
+    const filter = safeTerm
         ? {
             $or: [
-                { title: { $regex: term, $options: "i" } },
-                { location: { $regex: term, $options: "i" } },
-                { country: { $regex: term, $options: "i" } },
+                { title: { $regex: safeTerm, $options: "i" } },
+                { location: { $regex: safeTerm, $options: "i" } },
+                { country: { $regex: safeTerm, $options: "i" } },
             ],
           }
         : {};
