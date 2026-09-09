@@ -1,6 +1,5 @@
-if(process.env.NODE_ENV !== "production"){
-  require('dotenv').config();
-  //console.log(process.env.SECRET);
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
 }
 
 const express = require("express");
@@ -9,8 +8,6 @@ const mongoose = require("mongoose");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
-const wrapAsync = require("./utils/wrapAsync.js");
-// const { wrap } = require("module"); // not required
 const ExpressError = require("./utils/ExpressError.js");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
@@ -18,22 +15,55 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+
+if (!process.env.SECRET) {
+  console.error(
+    "FATAL: SECRET environment variable is required for session security. " +
+    "See .env.example."
+  );
+  process.exit(1);
+}
 
 const listingRouter = require("./routes/listing.js");
 const reviewsRouter = require("./routes/reviews.js");
 const userRouter = require("./routes/user.js");
+const staticRouter = require("./routes/static.js");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
+
+// normalize requests that arrive with no parseable body (e.g. empty POSTs),
+// so controllers never have to cope with `req.body` being undefined
+app.use((req, res, next) => {
+  if (!req.body || typeof req.body !== "object") req.body = {};
+  next();
+});
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
 
+// security headers (helmet) — CSP disabled because views use inline scripts
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+  })
+);
+
+// rate limiting — generous global, tighter on auth (auth limiter lives in routes/user.js)
+const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200 });
+app.use(globalLimiter);
+
+const isProduction = process.env.NODE_ENV === "production";
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
 
 //  Database 
-//const Mongo_url = "mongodb://127.0.0.1:27017/wanderlust";
 const dburl = process.env.ATLASTDB_URL || "mongodb://127.0.0.1:27017/wanderlust";
 
 main()
@@ -41,7 +71,7 @@ main()
     console.log("Connected to DB");
   })
   .catch((err) => {
-    console.log(err);
+    console.log("Database connection failed:", err.message);
   });
 
 async function main() {
@@ -64,12 +94,13 @@ const sessionOption = {
   store,
   secret: process.env.SECRET,
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    expires: Date.now() + 7*24*60*60*1000,
-    maxAge: 7*24*60*60*1000
-  }
+    sameSite: "lax",
+    secure: isProduction,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  },
 };
 
 app.use(session(sessionOption));
@@ -85,46 +116,86 @@ passport.deserializeUser(User.deserializeUser());
 
 
 app.use((req, res, next) => {
-  res.locals.success = req.flash("success");
-  res.locals.error = req.flash("error");
+  // Read flash only when a session may already exist. connect-flash mutates
+  // session.flash on read, which would otherwise create a session (and cookie)
+  // on every anonymous page view, defeating saveUninitialized:false.
+  const hasSessionCookie = /(^|;\s*)connect\.sid=/i.test(req.headers.cookie || "");
+  if (hasSessionCookie) {
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+  } else {
+    res.locals.success = [];
+    res.locals.error = [];
+  }
   res.locals.currUser = req.user;   // for styling bcz navbar doesnt hve direct acces req.user
   next();
 });
-
-// app.get("/demouser",async(req,res)=>{
-//   let fakeUser = new User({
-//     email:"kr@gmail",
-//     username : "kr"
-//   });
-//   let registeredUser = await User.register(fakeUser, "hello");   //here it auto saves the ifno to db
-//   res.send(registeredUser);
-// })
 
 //  Routes 
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewsRouter);
 app.use("/", userRouter);
+app.use("/", staticRouter);
 
 
 
-// app.get("/", (req, res) => {
-//   res.send("hi i am Root");
-// });
+app.get("/", (req, res) => {
+  res.redirect("/listings");
+});
 
 //  error handling 
-app.all(/.*/, (req, res, next) => {
-  next(new ExpressError(404, "Page Not Found !"));
+app.use((req, res, next) => {
+  next(new ExpressError(404, "Page Not Found"));
 });
 
 app.use((err, req, res, next) => {
   if (res.headersSent) {
     return next(err);
   }
+
+  // invalid ObjectId (e.g. malformed listing/review id) -> treat as not found
+  if (err.name === "CastError") {
+    err.statusCode = 404;
+    err.message = "Resource not found";
+  }
+
+  // multer upload errors (bad/oversized file) -> client error
+  if (err.name === "MulterError") {
+    err.statusCode = 400;
+  }
+
+  // cloudinary-style API errors carry http_code instead of statusCode
+  if (!err.statusCode && typeof err.http_code === "number" && err.http_code < 500) {
+    err.statusCode = err.http_code;
+    err.message = err.message || "Bad request";
+  }
+
+  // errors surfaced when express-session cannot sign is done via errors that
+  // match /decrypt ciphertext|unserialize/i and contain a malformed session store value
+  const sessionErr = err && err.message &&
+    /decrypt ciphertext|ciphertext object|ciphertext/i.test(String(err.message)) ? true : false;
+  if (sessionErr) {
+    // session could not be decrypted (e.g. SECRET was rotated or the cookie is
+    // stale) — clear it and send the user back to login instead of a 500 page
+    res.clearCookie("connect.sid", { path: "/" });
+    return res.redirect("/login");
+  }
+
   let { statusCode = 500, message = "Something Went Wrong" } = err;
-  res.status(statusCode).render("error.ejs", { message, err });
+
+  if (statusCode >= 500) {
+    console.error("Server error:", err);
+    // don't leak internal details to the client in production
+    if (isProduction) {
+      message = "Something went wrong on our end. Please try again later.";
+    }
+  }
+
+  res.status(statusCode).render("error.ejs", { message, err, statusCode });
 });
 
 //  server 
-app.listen(8080, () => {
-  console.log("Server is listening to Port 8080");
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server is listening to Port ${PORT}`);
 });

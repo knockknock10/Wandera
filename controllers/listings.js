@@ -1,13 +1,19 @@
 const Listing = require("../models/listing");
-const NodeGeocoder = require("node-geocoder");
-require("dotenv").config();
 const googlemapkey = process.env.GOOGLE_MAPS_API_KEY;
-
-
-
 module.exports.index = async (req, res) => {
-    const allListings = await Listing.find({});
-    res.render("./listings/index", { allListings });
+    const { q } = req.query;
+    const term = q && q.trim();
+    const filter = term
+        ? {
+            $or: [
+                { title: { $regex: term, $options: "i" } },
+                { location: { $regex: term, $options: "i" } },
+                { country: { $regex: term, $options: "i" } },
+            ],
+          }
+        : {};
+    const allListings = await Listing.find(filter);
+    res.render("./listings/index", { allListings, q: term || "" });
 };
 
 module.exports.renderNewForm = (req, res) => {
@@ -50,18 +56,6 @@ module.exports.createListings = async (req, res) => {
 
   req.flash("success", "New listing created");
   res.redirect("/listings");
-
-  // let result = listingSchema.validate(req.body);
-  // console.log(result);
-  // let url = req.file.path;
-  // let filename = req.file.filename;
-
-  // const newListing = new Listing(req.body.listing);
-  // newListing.owner = req.user._id;
-  // newListing.image = {url,filename};
-  // await newListing.save();
-  // req.flash("success", "New listing created ");
-  // res.redirect("/listings");
 };
 
 
@@ -91,6 +85,8 @@ module.exports.updateListings = async (req, res) => {
     listing.title = req.body.listing.title;
     listing.price = req.body.listing.price;
     listing.description = req.body.listing.description;
+    listing.location = req.body.listing.location;
+    listing.country = req.body.listing.country;
 
     // update image if new file uploaded
     if (req.file) {
@@ -109,6 +105,6 @@ module.exports.updateListings = async (req, res) => {
 module.exports.destroyListing = async (req, res) => {
     let { id } = req.params;
     await Listing.findByIdAndDelete(id);
-    req.flash("error", "listing Deleted!");
+    req.flash("success", "Listing deleted!");
     res.redirect("/listings");
 };

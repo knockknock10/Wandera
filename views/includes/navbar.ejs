@@ -1,55 +1,61 @@
 <style>
-    .search-btn{
+    .search-btn {
         background-color: #fe424d;
         color: #fff;
         border-radius: 25px;
-        padding: 0 1rem  0 1rem;
+        padding: 0 1rem 0 1rem;
+        border: none;
     }
-    .search-btn:hover{
-        background-color: #fe424d;
+    .search-btn:hover {
+        background-color: #e03842;
         color: #fff;
     }
-    .search-btn i{
+    .search-btn i {
         display: inline;
         margin-right: 0.5rem;
     }
-    .search-inp{
+    .search-inp {
         border-radius: 25px;
-        padding: 0.5rem 4rem  0.5rem 4rem;
+        padding: 0.5rem 1.5rem;
         font-size: 1rem;
+    }
+    .navbar-brand-name {
+        font-weight: 700;
+        color: #fe424d;
+        letter-spacing: 0.5px;
     }
 </style>
 
-<nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
-    <!-- here border bottom highlights the bottom of navbar -->
-    
+<nav class="navbar navbar-expand-md bg-white border-bottom sticky-top shadow-sm">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/listings"><i class="fa-solid fa-house"></i></a>
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/listings">
+            <i class="fa-solid fa-house"></i>
+            <span class="navbar-brand-name">WanderLust</span>
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
             aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div class="navbar-nav">
-                
+            <div class="navbar-nav me-auto mb-2 mb-md-0">
                 <a class="nav-link" href="/listings">Explore</a>
-                
+                <a class="nav-link" href="/listings/new">Add a Listing</a>
             </div>
-            <div class="navbar-nav ms-auto">
-                <form class="d-flex" role="search">
-                    <input class="form-control mr-sm-2 search-inp" type="search" placeholder="Search Destination" >
-                    <button class="btn search-btn my-2 my-sm-0 " type="submit">
-                        <i class="fa-solid fa-magnifying-glass"></i>Search</button>
-                </form>
-            </div>
-             <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="listings/new">Wanderlust your home</a>
+            <form class="d-flex me-md-3 my-2 my-md-0" role="search" action="/listings" method="GET">
+                <input class="form-control me-2 search-inp" type="search" name="q" placeholder="Search Destination"
+                    value="<%= typeof q !== 'undefined' ? q : '' %>">
+                <button class="btn search-btn" type="submit">
+                    <i class="fa-solid fa-magnifying-glass"></i>Search</button>
+            </form>
+            <div class="navbar-nav">
                 <% if(!currUser) {%>
-                    <a class="nav-link " href="/signup"><b>Sign Up</b></a>
+                    <a class="nav-link" href="/signup"><b>Sign Up</b></a>
                     <a class="nav-link" href="/login"><b>Log In</b></a>
-                <% } %>
-                <% if(currUser) {%>
-                    <a class="nav-link" href="/logout"><b>Log Out</b></a>
+                <% } else { %>
+                    <span class="nav-link text-muted d-none d-md-inline"><i class="fa-solid fa-circle-user me-1"></i><%= currUser.username %></span>
+                    <form action="/logout" method="POST" class="d-flex align-items-center m-0">
+                        <button type="submit" class="btn btn-link nav-link p-0 pb-1">Log Out</button>
+                    </form>
                 <% } %>
             </div>
         </div>

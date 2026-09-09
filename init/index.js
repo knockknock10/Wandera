@@ -2,7 +2,14 @@ const mongoose = require("mongoose");
 const initdata = require("./data.js");
 const Listing = require("../models/listing.js");
 
+//  Safety: only run against local dev database
 const Mongo_url = "mongodb://127.0.0.1:27017/wanderlust"
+
+if (process.env.NODE_ENV === "production") {
+  console.error("Refusing to seed in production. This script is for local dev only.");
+  process.exit(1);
+}
+
 main()
     .then(() => {
     console.log("Connected to DB");
@@ -16,25 +23,10 @@ async function main() {
 
 const initDB = async () => {
     await Listing.deleteMany({});
-    initdata.data = initdata.data.map((obj)=>({...obj,owner:"695d04d97f65b0a9801f10a1"}));
+    initdata.data = initdata.data.map((obj)=>({...obj,owner: process.env.ADMIN_ID}));
     await Listing.insertMany( initdata.data );
     console.log("data was initialized");
 }
 initDB();
-// const ADMIN_ID = "695d04d97f65b0a9801f10a1";
-
-// const initDB = async () => {
-//   await Listing.deleteMany({});
-
-//   initdata.data = initdata.data.map(obj => ({
-//     ...obj,
-//     owner: ADMIN_ID
-//   }));
-
-//   await Listing.insertMany(initdata.data);
-//   console.log("all listings assigned to one user");
-// };
-
-// initDB();
 
 

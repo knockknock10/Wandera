@@ -3,6 +3,7 @@ body{
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    background-color: #fafafa;
 }
 .container{
     min-height: 100vh;
@@ -20,11 +21,10 @@ body{
 .fa-house{
     color: #fe424d;
     font-size: 2rem;
-
 }
  /* to override the things of bootstrap we use important */
 .nav-link{
- color:#222222 !important;  
+    color:#222222 !important;
 }
 footer {
     background-color:rgb(242, 239, 239);
@@ -97,6 +97,10 @@ footer {
 }
 .listing-link{
     text-decoration: none;
+    color: inherit;
+}
+.listing-link:hover .card-title{
+    color: #fe424d;
 }
 /* card effect */
 .card-img-overlay{
@@ -123,11 +127,16 @@ footer {
 .btn-edit{
     background-color: #fe424d !important;
     color: white !important;
+    border: none !important;
 }
 #map{
-    height: 100px;
-    width: 100px;
+    height: 400px;
+    width: 100%;
+    border-radius: 1rem;
 }
 
-
-
+/* review star rating sizing on the show card */
+.starability-result{
+    transform: scale(0.8);
+    transform-origin: left center;
+}

@@ -1,0 +1,31 @@
+# Render configuration for Project Air (WanderLust)
+# https://render.com/docs/render.yaml
+#
+# Use this file to deploy as a Render Web Service.
+# Environment variable values must be entered in the Render dashboard
+# (they are intentionally NOT stored here).
+services:
+  - type: web
+    name: project-air
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /listings
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ATLASTDB_URL
+        sync: false
+      - key: SECRET
+        sync: false
+      - key: CLOUD_NAME
+        sync: false
+      - key: CLOUD_API_KEY
+        sync: false
+      - key: CLOUD_API_SECRET_KEY
+        sync: false
+      - key: GOOGLE_MAPS_API_KEY
+        sync: false
+      - key: PORT
+        value: 10000

@@ -13,7 +13,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'proj_dev',
-    allowdFormats: ["png","jpg","jpeg"], // supports promises as well
+    allowed_formats: ["png","jpg","jpeg","webp","gif"], // supports promises as well
   
   },
 });
