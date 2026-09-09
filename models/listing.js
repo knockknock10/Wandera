@@ -1,32 +1,7 @@
 const mongoose = require("mongoose");
-// const { findOneAndDelete } = require("./listing");
 const Schema = mongoose.Schema;
 const Review = require("./review.js");
-
-// const listingSchema = new Schema({
-//     title: {
-//         type: String,
-//         required: true,
-//     },
-//     description: String,
-
-//     image: {
-//         // type: String,
-//         // default:"https://www.google.com/url?sa=i&url=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fbeach-house&psig=AOvVaw07WaMyQSDlu2yA2EvUODBp&ust=1759304232429000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCJiByZH9_48DFQAAAAAdAAAAABAE",
-//         // set: (v) => v === ""
-//         //     ? ""         //ternary op
-//         //     : v,
-//         type: String,
-//         default: "https://default-image-link.com",
-//         set: v => v === ""
-//             ? "https://default-image-link.com"  // fallback default
-//             : v
-//     },
-//     price: Number,
-//     location: String,
-//     country:String,
-
-// })
+const { cloudinary } = require("../cloudconfig.js");
 
 const listingSchema = new Schema({
   title: { type: String, required: true },
@@ -55,16 +30,20 @@ const listingSchema = new Schema({
     type:Schema.Types.ObjectId,
     ref:"User",
   },
-  // category:{
-  //   type:String,
-  //   enum:["Trending","Rooms","Iconic Cities","Mountains","Castles","Amazing Pools","Campign","Farms","Arctic Pools"]
-  // }
 
 });
 
 listingSchema.post("findOneAndDelete", async (listing) => {
   if (listing) {
     await Review.deleteMany({ _id: { $in: listing.reviews } });
+    // remove the Cloudinary image so we don't leave orphaned uploads
+    if (listing.image && listing.image.filename) {
+      try {
+        await cloudinary.uploader.destroy(listing.image.filename);
+      } catch (err) {
+        console.log("Could not delete Cloudinary image:", err.message);
+      }
+    }
   }
 });
 

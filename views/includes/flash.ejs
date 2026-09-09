@@ -1,14 +1,17 @@
- <% if(success && success.length){ %>   <!-- sucess length as it is of array -->
-    <div class="alert alert-success alert-dismissible fade show col-6 offset-3 mt-2" role="alert">
-        <%= success %>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+<% if(success && success.length){ %>
+    <% for(let msg of success){ %>
+        <div class="alert alert-success alert-dismissible fade show col-md-6 offset-md-3 mt-3 shadow-sm" role="alert">
+            <%= msg %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <% } %>
 <% } %>
 
-<!-- for error -->
-  <% if(error && error.length){ %>   <!-- sucess length as it is of array -->
-    <div class="alert alert-danger alert-dismissible fade show col-6 offset-3 mt-2" role="alert">
-        <%= error %>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+<% if(error && error.length){ %>
+    <% for(let msg of error){ %>
+        <div class="alert alert-danger alert-dismissible fade show col-md-6 offset-md-3 mt-3 shadow-sm" role="alert">
+            <%= msg %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <% } %>
 <% } %>

@@ -4,12 +4,19 @@ module.exports.renderSignupForm = (req,res)=>{
     res.render("users/signup.ejs");
 }
 
-module.exports.signup = async(req,res)=>{
+module.exports.signup = async (req, res, next) => {
+    let {username,email,password} = req.body;
+    if(!username || !email || !password){
+        req.flash("error","All fields are required!");
+        return res.redirect("/signup");
+    }
+    if(!email.includes("@")){
+        req.flash("error","Please enter a valid email address.");
+        return res.redirect("/signup");
+    }
     try{
-        let {username,email,password} = req.body;
         const newUser = new User({email,username}); 
         const registeredUser = await User.register(newUser,password);
-        //console.log(registeredUser);
         req.login(registeredUser,(err)=>{
             if(err){
                 return next(err);
