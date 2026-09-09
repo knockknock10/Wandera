@@ -4,6 +4,11 @@ const ExpressError = require("./utils/ExpressError.js");
 const { listingSchema ,reviewSchema} = require("./schema.js");
 
 
+// Resolve the authenticated user regardless of how middleware is invoked.
+// res.locals.currUser is set by an app-level middleware; req.user is set by
+// Passport. Prefer req.user, fall back to locals.
+const currentUser = (req, res) => req.user || (res.locals && res.locals.currUser) || null;
+
 module.exports.isLoggedIn = (req,res,next)=>{
   
     //console.log(req.user);  //get the log in or log out user info
@@ -33,7 +38,9 @@ module.exports.isowner = async(req,res,next)=>{
     req.flash("error","Listing does not exist!");
     return res.redirect("/listings");
   }
-  if(!res.locals.currUser || !listing.owner._id.equals(res.locals.currUser._id)){
+  const user = currentUser(req, res);
+  const ownerId = listing.owner && (listing.owner._id || listing.owner);
+  if(!user || !ownerId || !ownerId.equals(user._id)){
     req.flash("error","You are not the owner of this listing!");
     return  res.redirect(`/listings/${id}`); 
   }
@@ -72,7 +79,9 @@ module.exports.isreviewAuthor = async(req,res,next)=>{
     req.flash("error","Review does not exist!");
     return res.redirect(`/listings/${id}`); 
   }
-  if(!res.locals.currUser || !review.author._id.equals(res.locals.currUser._id)){
+  const user = currentUser(req, res);
+  const authorId = review.author && (review.author._id || review.author);
+  if(!user || !authorId || !authorId.equals(user._id)){
     req.flash("error","You are not author of this review!");
     return  res.redirect(`/listings/${id}`); 
   }
