@@ -36,8 +36,10 @@ const listingSchema = new Schema({
 listingSchema.post("findOneAndDelete", async (listing) => {
   if (listing) {
     await Review.deleteMany({ _id: { $in: listing.reviews } });
-    // remove the Cloudinary image so we don't leave orphaned uploads
-    if (listing.image && listing.image.filename) {
+    // remove the Cloudinary image so we don't leave orphaned uploads.
+    // "listingimage" is the shared placeholder filename of seeded listings
+    // (their images are hosted on Unsplash, not Cloudinary) — skip it.
+    if (listing.image && listing.image.filename && listing.image.filename !== "listingimage") {
       try {
         await cloudinary.uploader.destroy(listing.image.filename);
       } catch (err) {
