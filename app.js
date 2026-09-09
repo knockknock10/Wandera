@@ -51,6 +51,12 @@ app.use(
   helmet({
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
+    // Allow the browser to send the referrer origin to Google Maps so that
+    // referrer-restricted API keys validate (helmet's default no-referrer
+    // would break them). Never sends the full URL cross-origin.
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    // Permissive CORP so Cloudinary/Unsplash images load; COEP is disabled.
+    crossOriginResourcePolicy: { policy: "cross-origin" },
   })
 );
 
