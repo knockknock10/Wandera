@@ -1,4 +1,5 @@
 const Listing = require("../models/listing");
+const { cloudinary } = require("../cloudconfig.js");
 const googlemapkey = process.env.GOOGLE_MAPS_API_KEY;
 module.exports.index = async (req, res) => {
     const { q } = req.query;
@@ -81,6 +82,8 @@ module.exports.updateListings = async (req, res) => {
         return res.redirect("/listings");
     }
 
+    const previousImageFilename = listing.image && listing.image.filename;
+
     // update basic fields
     listing.title = req.body.listing.title;
     listing.price = req.body.listing.price;
@@ -97,6 +100,16 @@ module.exports.updateListings = async (req, res) => {
     }
 
     await listing.save();
+
+    // Remove the replaced Cloudinary image (only real uploaded public IDs —
+    // seeded listings use a shared placeholder filename and Unsplash URLs).
+    if (req.file && previousImageFilename && previousImageFilename !== "listingimage") {
+        try {
+            await cloudinary.uploader.destroy(previousImageFilename);
+        } catch (err) {
+            console.log("Could not delete previous Cloudinary image:", err.message);
+        }
+    }
 
     req.flash("success", "Listing Updated!");
     res.redirect(`/listings/${id}`);
