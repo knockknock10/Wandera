@@ -34,6 +34,13 @@ const staticRouter = require("./routes/static.js");
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 
+// normalize requests that arrive with no parseable body (e.g. empty POSTs),
+// so controllers never have to cope with `req.body` being undefined
+app.use((req, res, next) => {
+  if (!req.body || typeof req.body !== "object") req.body = {};
+  next();
+});
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.engine("ejs", ejsMate);
@@ -87,7 +94,7 @@ const sessionOption = {
   store,
   secret: process.env.SECRET,
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
     httpOnly: true,
     sameSite: "lax",
@@ -109,8 +116,17 @@ passport.deserializeUser(User.deserializeUser());
 
 
 app.use((req, res, next) => {
-  res.locals.success = req.flash("success");
-  res.locals.error = req.flash("error");
+  // Read flash only when a session may already exist. connect-flash mutates
+  // session.flash on read, which would otherwise create a session (and cookie)
+  // on every anonymous page view, defeating saveUninitialized:false.
+  const hasSessionCookie = /(^|;\s*)connect\.sid=/i.test(req.headers.cookie || "");
+  if (hasSessionCookie) {
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+  } else {
+    res.locals.success = [];
+    res.locals.error = [];
+  }
   res.locals.currUser = req.user;   // for styling bcz navbar doesnt hve direct acces req.user
   next();
 });

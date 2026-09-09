@@ -1,10 +1,14 @@
 const User = require("../models/user");
+const ExpressError = require("../utils/ExpressError.js");
 
 module.exports.renderSignupForm = (req,res)=>{
     res.render("users/signup.ejs");
 }
 
 module.exports.signup = async (req, res, next) => {
+    if (!req.body || Object.keys(req.body).length === 0) {
+        throw new ExpressError(400, "Bad request: no signup data received.");
+    }
     let {username,email,password} = req.body;
     if(!username || !email || !password){
         req.flash("error","All fields are required!");
