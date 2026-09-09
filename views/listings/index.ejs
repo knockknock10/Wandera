@@ -39,7 +39,7 @@
                         </p>
                         <div class="d-flex justify-content-between align-items-end mt-auto">
                             <p class="mb-0 fw-semibold">
-                                ₹<%= listing.price %><span class="text-muted small">/night</span>
+                                ₹<span class="price-amount" data-price="<%= listing.price %>"><%= listing.price.toLocaleString("en-IN") %></span><span class="text-muted small">/night</span>
                             </p>
                             <i class="tax-info small text-muted">+18% GST</i>
                         </div>
@@ -51,15 +51,20 @@
 </div>
 
 <script>
-    let taxswitch = document.getElementById("flexSwitchCheckDefault");
-    taxswitch.addEventListener("click", () => {
-        let taxInfo = document.getElementsByClassName("tax-info");
-        for (let info of taxInfo) {
-            if (info.style.display !== "inline") {
-                info.style.display = "inline";
-            } else {
-                info.style.display = "none";
-            }
+    // "Display total after taxes" switch: when ON, show price including 18% GST
+    // and hide the GST note; when OFF, show the base price with the note.
+    const taxswitch = document.getElementById("flexSwitchCheckDefault");
+    const priceEls = document.querySelectorAll(".price-amount");
+    const taxInfos = document.querySelectorAll(".tax-info");
+    const renderPrices = () => {
+        const showTotal = taxswitch.checked;
+        for (const el of priceEls) {
+            const base = parseFloat(el.dataset.price) || 0;
+            el.textContent = (showTotal ? Math.round(base * 1.18) : base).toLocaleString("en-IN");
         }
-    });
+        for (const info of taxInfos) {
+            info.style.display = showTotal ? "none" : "inline";
+        }
+    };
+    taxswitch.addEventListener("change", renderPrices);
 </script>
