@@ -2,7 +2,7 @@
 
 A place-listing app for finding stays, browsing photos and leaving reviews.
 
-[![Project Air](public/images/project-air-preview.jpg)](https://wandera-bncl.onrender.com)
+[![Wandera](public/images/project-air-preview.jpg)](https://wandera-bncl.onrender.com)
 
 **Live Demo:** https://wandera-bncl.onrender.com
 
