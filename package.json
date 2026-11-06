@@ -2,9 +2,9 @@
   "engines": {
     "node": "20.x"
   },
-  "name": "project_air",
+  "name": "wandera",
   "version": "1.0.0",
-  "description": "WanderLust - a campground-style travel listing app built with the MERN-lite stack (EJS + Express + MongoDB) and Passport authentication.",
+  "description": "A server-rendered travel-stay listing app built with Express, EJS, MongoDB and Passport authentication.",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
