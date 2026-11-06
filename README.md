@@ -1,6 +1,6 @@
-# Project Air
+# Wandera
 
-A WanderLust-style listing site for sharing places to stay around the world — discover places, browse photos, and leave reviews.
+A place-listing app for finding stays, browsing photos and leaving reviews.
 
 [![Project Air](public/images/project-air-preview.jpg)](https://wandera-bncl.onrender.com)
 
@@ -10,7 +10,7 @@ Built with Node.js + Express + EJS + MongoDB, with Passport auth, Cloudinary upl
 
 ## About
 
-Users can browse and search property listings, view a map of each place, and sign up to create their own listings or leave reviews. Owners of a listing can edit or delete it; review authors can delete their own reviews. All authorization is enforced server-side.
+Users can browse and search property listings, view a map for each place, and sign up to add their own listings or leave reviews. Owners of a listing can edit or delete it; review authors can delete their own reviews. All authorization is enforced server-side.
 
 ## Features
 
